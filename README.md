@@ -63,12 +63,16 @@ VoidSave.Delete<PlayerProgress>("slot1");
 Paste this into a script like `SaveExample.cs` and attach it to any GameObject:
 
 ```csharp
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 using VoidSaveSystem;
 
 public class SaveExample : MonoBehaviour
 {
     [SerializeField] private string slotName = "slot1";
+    [SerializeField] private TextMeshProUGUI feedbackText;
+
     private PlayerProgress progress;
 
     void Start()
@@ -81,7 +85,8 @@ public class SaveExample : MonoBehaviour
         }
         else
         {
-            progress = new PlayerProgress {
+            progress = new PlayerProgress
+            {
                 coins = 0,
                 currentLevel = "Tutorial",
                 playerPosition = transform.position
@@ -94,17 +99,46 @@ public class SaveExample : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.S))
         {
-            progress.playerPosition = transform.position;
+            progress.playerPosition += new Vector3(1,1,1);
             progress.coins += 5;
             VoidSave.Save(slotName, progress);
             Debug.Log("[Saved] Progress updated.");
+            Print($"[Saved] Coins: {progress.coins}, Pos: {progress.playerPosition}", true);
+        }
+
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            if (VoidSave.Exists<PlayerProgress>(slotName))
+            {
+                progress = VoidSave.Load<PlayerProgress>(slotName);
+                transform.position = progress.playerPosition;
+                Print($"[Loaded]\nCoins: {progress.coins} \nPos: {progress.playerPosition} \nLevel: {progress.currentLevel}", false);
+            }
+            else
+            {
+                Print("[Load] No save file found.", false);
+            }
         }
 
         if (Input.GetKeyDown(KeyCode.D))
         {
             VoidSave.Delete<PlayerProgress>(slotName);
-            Debug.Log("[Deleted] Save wiped.");
+            progress = new PlayerProgress
+            {
+                coins = 0,
+                currentLevel = "Tutorial",
+                playerPosition = new Vector3(0, 0, 0)
+            };
+            Print("[Deleted] Save wiped.", true);
         }
+    }
+
+    void Print(string msg, bool showLog)
+    {
+        if(showLog)
+            Debug.Log(msg);
+        if (feedbackText != null && !showLog)
+            feedbackText.text = msg;
     }
 }
 
