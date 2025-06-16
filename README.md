@@ -64,7 +64,7 @@ Paste this into a script like `SaveExample.cs` and attach it to any GameObject:
 
 ```csharp
 using UnityEngine;
-using VoidTools.SaveSystem;
+using VoidSaveSystem;
 
 public class SaveExample : MonoBehaviour
 {
